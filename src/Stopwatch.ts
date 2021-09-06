@@ -1,13 +1,15 @@
 interface StopWatchDom {
   currentTime: HTMLDivElement;
-  buttons: NodeListOf<HTMLButtonElement>;
+  startButton: HTMLButtonElement;
+  stopButton: HTMLButtonElement;
+  resetButton: HTMLButtonElement;
   [x: string]: HTMLElement
 }
 
 abstract class Stopwatch {
 
   protected currentTime: number = 0;
-  private timer: number | null = null;
+  private timer: number | undefined;
   protected dom = <StopWatchDom>{};
 
   constructor(element: HTMLDivElement) {
@@ -18,7 +20,9 @@ abstract class Stopwatch {
 
   private getElements(element: HTMLDivElement): void {
     this.dom.currentTime = element.querySelector('.stopwatch__current-time') as HTMLDivElement;
-    this.dom.buttons = element.querySelectorAll('.stopwatch__button') as NodeListOf<HTMLButtonElement>;
+    this.dom.startButton = element.querySelector('.stopwatch__start-btn') as HTMLButtonElement;
+    this.dom.stopButton = element.querySelector('.stopwatch__stop-btn') as HTMLButtonElement;
+    this.dom.resetButton = element.querySelector('.stopwatch__reset-btn') as HTMLButtonElement;
   }
 
   private initActions(): void {
@@ -26,13 +30,13 @@ abstract class Stopwatch {
 
     //Used NodeList indexes instead of creating different selectors for every button.
 
-    this.dom.buttons[0].addEventListener('click', function () {
+    this.dom.startButton.addEventListener('click', function () {
       thisStopWatch.start();
     });
-    this.dom.buttons[1].addEventListener('click', function () {
+    this.dom.stopButton.addEventListener('click', function () {
       thisStopWatch.stop();
     });
-    this.dom.buttons[2].addEventListener('click', function () {
+    this.dom.resetButton.addEventListener('click', function () {
       thisStopWatch.reset();
     });
   }
@@ -41,16 +45,15 @@ abstract class Stopwatch {
     const mm: number = Math.floor(time / 60000);
     const ss: number = Math.floor(time / 1000);
     const ms: number = Math.floor((time - mm * 60000 - ss*1000)/ 10);
+  
+    const pad0 = (number:number):string => {
 
-    if (mm < 10 && ss < 10 && ms < 10) {
-      return `0${mm}:0${ss}:0${ms}`;
+      let result:string = '';
+
+      (number < 10) ?  result = `0${number}` : result = `${number}`
+      return result;
     }
-    else if (mm < 10 && ss < 10) {
-      return `0${mm}:0${ss}:${ms}`;
-    }
-    else if (mm < 10) {
-      return `0${mm}:${ss}:${ms}`;
-    }
+    return `${pad0(mm)}:${pad0(ss)}:${pad0(ms)}`;
   }
 
   protected renderTime(): void {
@@ -59,8 +62,7 @@ abstract class Stopwatch {
   }
 
   private start():void {
-    this.timer ? null :
-      this.timer = window.setInterval(this.step.bind(this), 1);
+    this.timer == undefined ? this.timer = window.setInterval(this.step.bind(this), 1) : null;
   }
   private step():void {
     this.currentTime++;
@@ -68,7 +70,7 @@ abstract class Stopwatch {
   }
   private stop():void {
     window.clearInterval(this.timer);
-    this.timer = null;
+    this.timer = undefined;
   }
   private reset():void {
     this.currentTime = 0;

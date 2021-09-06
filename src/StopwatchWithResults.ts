@@ -27,9 +27,9 @@ class StopwatchWithResults extends Stopwatch {
   }
 
   private renderList():void {
-    this.dom.resultsList.innerHTML = '';
+    this.dom.resultsList.innerHTML = ''; 
     for(let item of this.results){
-      this.dom.resultsList.innerHTML = this.dom.resultsList.innerHTML + `<li>${item}</li>`;
+      this.dom.resultsList.innerHTML += `<li>${item}</li>`;
     }
   }
 
